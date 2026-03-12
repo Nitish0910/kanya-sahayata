@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function AdminLoginPage() {
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ userid: '', password: '' });
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -44,8 +44,8 @@ export default function AdminLoginPage() {
         <div className="glass-card">
           <form onSubmit={handleSubmit}>
             <div className="form-group">
-              <label>Username</label>
-              <input className="form-input" required placeholder="Enter username" value={form.username} onChange={e => setForm({...form, username: e.target.value})} />
+              <label>Admin ID</label>
+              <input className="form-input" required placeholder="Enter Admin ID (e.g. ADMIN-001)" value={form.userid} onChange={e => setForm({...form, userid: e.target.value})} />
             </div>
             <div className="form-group">
               <label>Password</label>

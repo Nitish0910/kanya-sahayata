@@ -6,16 +6,16 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
   try {
-    const { username, password } = await request.json();
+    const { userid, password } = await request.json();
 
-    if (!username?.trim() || !password) {
-      return NextResponse.json({ success: false, message: 'Username and password are required' }, { status: 400 });
+    if (!userid?.trim() || !password) {
+      return NextResponse.json({ success: false, message: 'Admin ID and password are required' }, { status: 400 });
     }
 
     await dbConnect();
 
-    // Find admin by username only
-    const admin = await Admin.findOne({ username });
+    // Find admin by userid (e.g., ADMIN-001)
+    const admin = await Admin.findOne({ userid });
 
     if (!admin) {
       return NextResponse.json({ success: false, message: 'Username or password is incorrect' }, { status: 401 });
@@ -27,7 +27,7 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Username or password is incorrect' }, { status: 401 });
     }
 
-    await createAdminSession({ userid: admin.userid, username });
+    await createAdminSession({ userid: admin.userid, username: admin.username });
     return NextResponse.json({ success: true, message: 'Admin login successful' });
   } catch (error) {
     console.error('Admin login error:', error);

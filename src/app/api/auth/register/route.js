@@ -15,8 +15,11 @@ export async function POST(request) {
     } = data;
 
     // Validation
-    if (!name?.trim() || !email?.trim() || !password) {
-      return NextResponse.json({ success: false, message: 'Name, email, and password are required' }, { status: 400 });
+    const requiredFields = ['name', 'email', 'password', 'mobile_number', 'id_name', 'id_number', 'address', 'state', 'district', 'pincode', 'father_name', 'mother_name'];
+    const missingField = requiredFields.find(field => !data[field] || (typeof data[field] === 'string' && !data[field].trim()));
+    
+    if (missingField) {
+      return NextResponse.json({ success: false, message: `Please fill out all required fields. Missing: ${missingField.replace('_', ' ')}` }, { status: 400 });
     }
     if (password.length < 6) {
       return NextResponse.json({ success: false, message: 'Password must be at least 6 characters' }, { status: 400 });
@@ -60,6 +63,6 @@ export async function POST(request) {
     return NextResponse.json({ success: true, message: 'Registration successful! Welcome to Kanya Sahayata.' });
   } catch (error) {
     console.error('Registration error:', error);
-    return NextResponse.json({ success: false, message: 'Something went wrong. Please try again.' }, { status: 500 });
+    return NextResponse.json({ success: false, message: `Something went wrong: ${error.message}` }, { status: 500 });
   }
 }

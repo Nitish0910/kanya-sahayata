@@ -86,6 +86,14 @@ export default function RegisterPage() {
   };
 
   const handleNextStep1 = () => {
+    const required1 = ['name', 'date', 'email', 'gender', 'mobile_number', 'age', 'id_name', 'id_number', 'id_issued_state', 'income', 'pwd_candidate'];
+    for (let field of required1) {
+      if (!form[field]?.trim?.() && !form[field]) {
+        setStatus({ type: 'error', message: `Please fill out ${field.replace('_', ' ')} before proceeding.` });
+        return;
+      }
+    }
+
     if (!verified.email || !verified.mobile) {
       setStatus({ type: 'error', message: 'You must verify both Email and Mobile Number to proceed.' });
       return;
@@ -104,6 +112,18 @@ export default function RegisterPage() {
     }
     setStatus(null);
     setStep(2);
+  };
+
+  const handleNextStep2 = () => {
+    const required2 = ['address', 'nationality', 'state', 'district', 'house_number', 'pincode'];
+    for (let field of required2) {
+      if (!form[field]?.trim?.() && !form[field]) {
+        setStatus({ type: 'error', message: `Please fill out ${field.replace('_', ' ')} before proceeding.` });
+        return;
+      }
+    }
+    setStatus(null);
+    setStep(3);
   };
 
   const handleSubmit = async (e) => {
@@ -286,7 +306,7 @@ export default function RegisterPage() {
                 </div>
                 <div style={{ display: 'flex', gap: '12px' }}>
                   <button type="button" className="btn btn-outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setStep(1)}>← Back</button>
-                  <button type="button" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setStep(3)}>Next →</button>
+                  <button type="button" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={handleNextStep2}>Next →</button>
                 </div>
               </>
             )}
