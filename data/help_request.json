@@ -1,0 +1,40 @@
+[
+  {
+    "id": "HR-1773254174769",
+    "name": "Test User",
+    "id_number": "123456789012",
+    "user_email": "test@test.com",
+    "age": "18",
+    "phone": "9876543210",
+    "email": "test@test.com",
+    "address": "Moradabad",
+    "aadhar": "123456789012",
+    "service_type": "domestic",
+    "description": "Need help with school books and study materials",
+    "status": "assigned",
+    "assigned_ngo": "Nanhi Kali",
+    "admin_remarks": "",
+    "submitted_at": "2026-03-11T18:36:14.769Z",
+    "updated_at": "2026-03-11T18:37:43.538Z"
+  },
+  {
+    "id": "HR-1773254766380",
+    "name": "Location Test",
+    "id_number": "123456789012",
+    "user_email": "test@test.com",
+    "age": "18",
+    "phone": "9999999999",
+    "email": "test@test.com",
+    "address": "Delhi",
+    "aadhar": "111111111111",
+    "service_type": "medical",
+    "description": "Testing location-based NGO assignment",
+    "user_lat": 28.539104256545937,
+    "user_lng": 77.53914989307545,
+    "status": "assigned",
+    "assigned_ngo": "Smile Foundation",
+    "admin_remarks": "",
+    "submitted_at": "2026-03-11T18:46:06.380Z",
+    "updated_at": "2026-03-11T18:52:47.122Z"
+  }
+]
