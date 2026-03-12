@@ -72,8 +72,8 @@ This project has been structurally optimized to be deployed instantly on **Verce
 
 To access the back-office dashboard:
 - **Route**: \`/admin/login\`
-- **Admin ID**: \`1111\`
-- **Password**: \`admin123\`
+- **Username**: ADMIN-001
+- **Password**: admin123
 
 ---
 
