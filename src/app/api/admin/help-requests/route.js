@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import HelpRequest from '@/models/HelpRequest';
 import { getAdminSession } from '@/lib/auth';
 
 export async function GET() {
@@ -9,7 +10,8 @@ export async function GET() {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
-    const data = readData('help_request');
+    await dbConnect();
+    const data = await HelpRequest.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error('Help requests fetch error:', error);

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { findWhere } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import Admin from '@/models/Admin';
 import { createAdminSession } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
@@ -11,14 +12,14 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Username and password are required' }, { status: 400 });
     }
 
-    // Find admin by username only
-    const admins = findWhere('admin_login', { username });
+    await dbConnect();
 
-    if (admins.length === 0) {
+    // Find admin by username only
+    const admin = await Admin.findOne({ username });
+
+    if (!admin) {
       return NextResponse.json({ success: false, message: 'Username or password is incorrect' }, { status: 401 });
     }
-
-    const admin = admins[0];
 
     // Compare password with bcrypt hash
     const isMatch = await bcrypt.compare(password, admin.password);

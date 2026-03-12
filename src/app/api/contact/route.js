@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { insertRow } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import ContactQuery from '@/models/ContactQuery';
 
 export async function POST(request) {
   try {
@@ -16,14 +17,17 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Phone must be 10 digits' }, { status: 400 });
     }
 
-    insertRow('kanya_contact', {
+    await dbConnect();
+
+    const newQuery = new ContactQuery({
       name: name.trim(),
       phone_no: phone || '',
       email_id: email.trim(),
       field: subject || 'General',
-      message: message.trim(),
-      submitted_at: new Date().toISOString()
+      message: message.trim()
     });
+
+    await newQuery.save();
 
     return NextResponse.json({ success: true, message: 'Your query has been sent successfully. We will contact you soon.' });
   } catch (error) {

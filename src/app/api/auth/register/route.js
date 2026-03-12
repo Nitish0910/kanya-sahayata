@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { findWhere, insertRow } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 import { createSession } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
@@ -30,11 +31,14 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'PAN Number must be exactly 10 alphanumeric characters' }, { status: 400 });
     }
 
-    // Check if user already exists
-    const byEmail = findWhere('kanya_register', { email });
-    const byId = findWhere('kanya_register', { id_number });
+    await dbConnect();
 
-    if (byEmail.length > 0 || byId.length > 0) {
+    // Check if user already exists
+    const existingUser = await User.findOne({ 
+      $or: [{ email }, { id_number }] 
+    });
+
+    if (existingUser) {
       return NextResponse.json({ success: false, message: 'You already have an account with this email or ID' }, { status: 409 });
     }
 
@@ -42,12 +46,14 @@ export async function POST(request) {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert new user with hashed password
-    insertRow('kanya_register', {
+    const newUser = new User({
       name, date, email, gender, mobile_number, age,
       id_name, id_number, id_issued_state, income, pwd_candidate,
       address, nationality, state, district, house_number, pincode,
       father_name, mother_name, password: hashedPassword
     });
+    
+    await newUser.save();
 
     await createSession({ id: id_number, name, email });
 

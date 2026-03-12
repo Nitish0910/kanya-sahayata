@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { findWhere } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 import { createSession } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rateLimit';
@@ -19,14 +20,14 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: `Too many login attempts. Try again in ${mins} minute(s).` }, { status: 429 });
     }
 
-    // Find user by email only (not password, since it's hashed)
-    const users = findWhere('kanya_register', { email });
+    await dbConnect();
 
-    if (users.length === 0) {
+    // Find user by email only
+    const user = await User.findOne({ email });
+
+    if (!user) {
       return NextResponse.json({ success: false, message: 'Email or password is incorrect' }, { status: 401 });
     }
-
-    const user = users[0];
 
     // Compare password with bcrypt hash
     const isMatch = await bcrypt.compare(password, user.password);

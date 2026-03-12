@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import NGO from '@/models/NGO';
 
 export async function GET(request) {
   try {
@@ -8,12 +9,17 @@ export async function GET(request) {
     const lat = parseFloat(searchParams.get('lat'));
     const lng = parseFloat(searchParams.get('lng'));
 
-    let ngos = readData('ngos').filter(n => n.status === 'approved');
+    await dbConnect();
 
-    // Filter by service type
+    // Query for approved NGOs
+    const query = { status: 'approved' };
+    
+    // Filter by service type if provided
     if (service) {
-      ngos = ngos.filter(n => n.services.includes(service));
+      query.services = service;
     }
+
+    let ngos = await NGO.find(query).lean();
 
     // Calculate distance if location is provided
     if (!isNaN(lat) && !isNaN(lng)) {

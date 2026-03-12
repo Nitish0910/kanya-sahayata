@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readData, writeData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 import { getSession } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
@@ -19,22 +20,22 @@ export async function PUT(request) {
       return NextResponse.json({ success: false, message: 'Password must be at least 6 characters' }, { status: 400 });
     }
 
-    const users = readData('kanya_register');
-    const userIndex = users.findIndex(u => u.email === session.email);
-    if (userIndex === -1) {
+    await dbConnect();
+    const user = await User.findOne({ email: session.email });
+    if (!user) {
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
     }
 
     // Compare current password with bcrypt hash
-    const isMatch = await bcrypt.compare(currentPassword, users[userIndex].password);
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
       return NextResponse.json({ success: false, message: 'Current password is incorrect' }, { status: 400 });
     }
 
     // Hash new password and save
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    users[userIndex].password = hashedPassword;
-    writeData('kanya_register', users);
+    user.password = hashedPassword;
+    await user.save();
 
     return NextResponse.json({ success: true, message: 'Password changed successfully' });
   } catch (err) {
@@ -42,3 +43,4 @@ export async function PUT(request) {
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
   }
 }
+

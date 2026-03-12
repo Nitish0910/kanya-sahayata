@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readData, writeData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 import { getSession, createSession } from '@/lib/auth';
 
 export async function PUT(request) {
@@ -22,25 +23,26 @@ export async function PUT(request) {
       return NextResponse.json({ success: false, message: 'Invalid email format' }, { status: 400 });
     }
 
-    const users = readData('kanya_register');
-    const idx = users.findIndex(u => u.email === session.email);
-    if (idx === -1) {
+    await dbConnect();
+    const user = await User.findOne({ email: session.email });
+    if (!user) {
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
     }
 
     // Check if new email is already taken by another user
-    if (email !== session.email && users.some(u => u.email === email)) {
-      return NextResponse.json({ success: false, message: 'Email already in use' }, { status: 409 });
+    if (email !== session.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return NextResponse.json({ success: false, message: 'Email already in use' }, { status: 409 });
+      }
     }
 
-    users[idx] = {
-      ...users[idx],
-      name,
-      email,
-      mobile_number: phone || users[idx].mobile_number,
-      address: address || users[idx].address
-    };
-    writeData('kanya_register', users);
+    user.name = name;
+    user.email = email;
+    if (phone) user.mobile_number = phone;
+    if (address) user.address = address;
+    
+    await user.save();
 
     // Update session
     await createSession({ id: session.id, name, email });
@@ -51,3 +53,4 @@ export async function PUT(request) {
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
   }
 }
+

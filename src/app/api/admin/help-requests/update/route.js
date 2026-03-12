@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readData, writeData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import HelpRequest from '@/models/HelpRequest';
 import { getAdminSession } from '@/lib/auth';
 
 export async function POST(request) {
@@ -15,47 +16,43 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Request ID and action are required' }, { status: 400 });
     }
 
-    const data = readData('help_request');
-    const index = data.findIndex(r => r.id === id);
+    await dbConnect();
+    const helpReq = await HelpRequest.findOne({ id });
 
-    if (index === -1) {
+    if (!helpReq) {
       return NextResponse.json({ success: false, message: 'Request not found' }, { status: 404 });
     }
 
     switch (action) {
       case 'verify':
-        data[index].status = 'verified';
-        data[index].updated_at = new Date().toISOString();
-        if (admin_remarks) data[index].admin_remarks = admin_remarks;
+        helpReq.status = 'verified';
+        if (admin_remarks) helpReq.admin_remarks = admin_remarks;
         break;
 
       case 'reject':
-        data[index].status = 'rejected';
-        data[index].updated_at = new Date().toISOString();
-        if (admin_remarks) data[index].admin_remarks = admin_remarks;
+        helpReq.status = 'rejected';
+        if (admin_remarks) helpReq.admin_remarks = admin_remarks;
         break;
 
       case 'assign':
         if (!assigned_ngo) {
           return NextResponse.json({ success: false, message: 'Please select an NGO' }, { status: 400 });
         }
-        data[index].status = 'assigned';
-        data[index].assigned_ngo = assigned_ngo;
-        data[index].updated_at = new Date().toISOString();
-        if (admin_remarks) data[index].admin_remarks = admin_remarks;
+        helpReq.status = 'assigned';
+        helpReq.assigned_ngo = assigned_ngo;
+        if (admin_remarks) helpReq.admin_remarks = admin_remarks;
         break;
 
       case 'complete':
-        data[index].status = 'completed';
-        data[index].updated_at = new Date().toISOString();
-        if (admin_remarks) data[index].admin_remarks = admin_remarks;
+        helpReq.status = 'completed';
+        if (admin_remarks) helpReq.admin_remarks = admin_remarks;
         break;
 
       default:
         return NextResponse.json({ success: false, message: 'Invalid action' }, { status: 400 });
     }
 
-    writeData('help_request', data);
+    await helpReq.save();
 
     const actionMsg = {
       verify: 'verified',
@@ -70,3 +67,4 @@ export async function POST(request) {
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
   }
 }
+

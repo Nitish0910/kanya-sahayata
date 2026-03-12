@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { readData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import HelpRequest from '@/models/HelpRequest';
+import NGO from '@/models/NGO';
 import { getSession } from '@/lib/auth';
 
 export async function GET() {
@@ -9,11 +11,14 @@ export async function GET() {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
-    const allRequests = readData('help_request');
-    const ngos = readData('ngos').filter(n => n.status === 'approved');
+    await dbConnect();
 
-    // Filter requests for this user
-    const userRequests = allRequests.filter(r => r.user_email === session.email || r.id_number === session.id);
+    // Fetch user requests directly from DB using lean() for POJOs
+    const userRequests = await HelpRequest.find({
+      $or: [{ user_email: session.email }, { id_number: session.id }]
+    }).lean();
+
+    const ngos = await NGO.find({ status: 'approved' }).lean();
 
     // Attach NGO details to assigned requests
     const enriched = userRequests.map(r => {

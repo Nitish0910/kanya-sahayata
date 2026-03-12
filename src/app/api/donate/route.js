@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { insertRow } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import Donation from '@/models/Donation';
 
 export async function POST(request) {
   try {
@@ -16,15 +17,18 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Phone must be 10 digits' }, { status: 400 });
     }
 
-    insertRow('donate', {
+    await dbConnect();
+
+    const newDonation = new Donation({
       name: name.trim(),
       email: email.trim(),
       mobile: phone || '',
       donate_type: donation_type.trim(),
       description: donation_description?.trim() || '',
-      quantity: donation_quantity || '',
-      submitted_at: new Date().toISOString()
+      quantity: donation_quantity || ''
     });
+
+    await newDonation.save();
 
     return NextResponse.json({
       success: true,
@@ -36,3 +40,4 @@ export async function POST(request) {
     return NextResponse.json({ success: false, message: 'Something went wrong. Try again.' }, { status: 500 });
   }
 }
+

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { insertRow } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import HelpRequest from '@/models/HelpRequest';
 import { getSession } from '@/lib/auth';
 
 export async function POST(request) {
@@ -13,7 +14,9 @@ export async function POST(request) {
 
     const id = 'HR-' + Date.now();
 
-    insertRow('help_request', {
+    await dbConnect();
+
+    const newRequest = new HelpRequest({
       id,
       name,
       id_number: session.id,
@@ -29,10 +32,10 @@ export async function POST(request) {
       user_lng: lng ? parseFloat(lng) : null,
       status: 'pending',
       assigned_ngo: null,
-      admin_remarks: '',
-      submitted_at: new Date().toISOString(),
-      updated_at: null
+      admin_remarks: ''
     });
+
+    await newRequest.save();
 
     return NextResponse.json({ success: true, message: 'Your request has been sent successfully! Track your request status in "My Requests".', requestId: id });
   } catch (error) {

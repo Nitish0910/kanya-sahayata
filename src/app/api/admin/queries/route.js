@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import ContactQuery from '@/models/ContactQuery';
 import { getAdminSession } from '@/lib/auth';
 
 export async function GET() {
@@ -9,10 +10,12 @@ export async function GET() {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
 
-    const data = readData('kanya_contact');
+    await dbConnect();
+    const data = await ContactQuery.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error('Queries fetch error:', error);
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
   }
 }
+

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { readData, writeData, insertRow } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import Notification from '@/models/Notification';
 import { getSession } from '@/lib/auth';
 
 // GET: Fetch notifications for current user
@@ -10,10 +11,10 @@ export async function GET() {
       return NextResponse.json({ success: false, message: 'Not logged in' }, { status: 401 });
     }
 
-    const notifications = readData('notifications');
-    const userNotifs = notifications
-      .filter(n => n.user_email === session.email)
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    await dbConnect();
+    const userNotifs = await Notification.find({ user_email: session.email })
+      .sort({ createdAt: -1 })
+      .lean();
 
     return NextResponse.json({ success: true, data: userNotifs });
   } catch (error) {
@@ -31,15 +32,17 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'user_email, title, and message are required' }, { status: 400 });
     }
 
-    insertRow('notifications', {
-      id: Date.now(),
+    await dbConnect();
+    const notification = new Notification({
+      id: Date.now().toString(),
       user_email,
       title,
       message,
       type: type || 'info', // info, success, warning
-      read: false,
-      created_at: new Date().toISOString()
+      read: false
     });
+
+    await notification.save();
 
     return NextResponse.json({ success: true, message: 'Notification created' });
   } catch (error) {
@@ -58,18 +61,19 @@ export async function PUT(request) {
 
     const { id, markAll } = await request.json();
 
-    const notifications = readData('notifications');
+    await dbConnect();
 
     if (markAll) {
-      notifications.forEach(n => {
-        if (n.user_email === session.email) n.read = true;
-      });
+      await Notification.updateMany(
+        { user_email: session.email },
+        { $set: { read: true } }
+      );
     } else if (id) {
-      const idx = notifications.findIndex(n => n.id === id && n.user_email === session.email);
-      if (idx !== -1) notifications[idx].read = true;
+      await Notification.findOneAndUpdate(
+        { id: id.toString(), user_email: session.email },
+        { $set: { read: true } }
+      );
     }
-
-    writeData('notifications', notifications);
 
     return NextResponse.json({ success: true, message: 'Notifications updated' });
   } catch (error) {

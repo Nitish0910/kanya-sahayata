@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { insertRow, readData } from '@/lib/db';
+import dbConnect from '@/lib/mongodb';
+import NGO from '@/models/NGO';
 
 export async function POST(request) {
   try {
@@ -20,8 +21,16 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'City and state are required' }, { status: 400 });
     }
 
+    await dbConnect();
+    
+    // Check if an NGO with the same email already exists
+    const existingNgo = await NGO.findOne({ email: email.trim() });
+    if (existingNgo) {
+      return NextResponse.json({ success: false, message: 'An NGO application with this email already exists' }, { status: 400 });
+    }
+
     const id = Date.now();
-    insertRow('ngo_applications', {
+    const newNgo = new NGO({
       id,
       name: name.trim(),
       description: description?.trim() || '',
@@ -34,9 +43,10 @@ export async function POST(request) {
       state: state.trim(),
       lat: parseFloat(lat) || 0,
       lng: parseFloat(lng) || 0,
-      status: 'pending',
-      appliedAt: new Date().toISOString()
+      status: 'pending'
     });
+
+    await newNgo.save();
 
     return NextResponse.json({ success: true, message: 'Your NGO partnership application has been submitted! We will review and contact you soon.' });
   } catch (error) {
@@ -47,7 +57,8 @@ export async function POST(request) {
 
 export async function GET() {
   try {
-    const applications = readData('ngo_applications');
+    await dbConnect();
+    const applications = await NGO.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json({ success: true, data: applications });
   } catch (error) {
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
