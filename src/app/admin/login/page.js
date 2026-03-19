@@ -45,11 +45,11 @@ export default function AdminLoginPage() {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>Admin ID</label>
-              <input className="form-input" required placeholder="Enter Admin ID (e.g. ADMIN-001)" value={form.userid} onChange={e => setForm({...form, userid: e.target.value})} />
+              <input className="form-input" required placeholder="Enter Admin ID (e.g. ADMIN-001)" value={form.userid} onChange={e => setForm({ ...form, userid: e.target.value })} />
             </div>
             <div className="form-group">
               <label>Password</label>
-              <input className="form-input" type="password" required placeholder="Enter password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} />
+              <input className="form-input" type="password" required placeholder="Enter password" value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} />
             </div>
             <button type="submit" className="btn btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: '8px' }} disabled={loading}>
               {loading ? 'Signing in...' : 'Login'}
