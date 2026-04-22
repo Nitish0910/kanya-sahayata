@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
-const protectedUserRoutes = ['/services', '/education', '/medical', '/domestic', '/career', '/legal-aid', '/mental-health', '/help-request', '/my-requests', '/profile'];
+// Only protect pages that require login - NOT service browsing pages
+const protectedUserRoutes = ['/help-request', '/my-requests', '/profile'];
 const protectedAdminRoutes = ['/admin/dashboard'];
 
 export function middleware(request) {
@@ -26,5 +27,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/services/:path*', '/education/:path*', '/medical/:path*', '/domestic/:path*', '/career/:path*', '/legal-aid/:path*', '/mental-health/:path*', '/help-request/:path*', '/my-requests/:path*', '/profile/:path*', '/admin/dashboard/:path*'],
+  matcher: ['/help-request/:path*', '/my-requests/:path*', '/profile/:path*', '/admin/dashboard/:path*'],
 };
