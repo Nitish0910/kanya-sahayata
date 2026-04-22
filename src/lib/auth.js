@@ -2,12 +2,14 @@ import { cookies } from 'next/headers';
 
 const SESSION_COOKIE = 'kanya_session';
 const ADMIN_COOKIE = 'kanya_admin_session';
+const isProduction = process.env.NODE_ENV === 'production';
 
 export async function createSession(userData) {
   const cookieStore = await cookies();
   cookieStore.set(SESSION_COOKIE, JSON.stringify(userData), {
     httpOnly: true,
-    secure: false,
+    secure: isProduction,
+    sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',
   });
@@ -34,7 +36,8 @@ export async function createAdminSession(adminData) {
   const cookieStore = await cookies();
   cookieStore.set(ADMIN_COOKIE, JSON.stringify(adminData), {
     httpOnly: true,
-    secure: false,
+    secure: isProduction,
+    sameSite: 'lax',
     maxAge: 60 * 60 * 24, // 1 day
     path: '/',
   });
