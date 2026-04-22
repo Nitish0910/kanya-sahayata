@@ -6,11 +6,18 @@ const protectedAdminRoutes = ['/admin/dashboard'];
 export function proxy(request) {
   const { pathname } = request.nextUrl;
 
+  // Skip API routes and static files
+  if (pathname.startsWith('/api') || pathname.startsWith('/_next') || pathname.includes('.')) {
+    return NextResponse.next();
+  }
+
   // Check user-protected routes
   if (protectedUserRoutes.some(route => pathname.startsWith(route))) {
     const session = request.cookies.get('kanya_session');
     if (!session) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const loginUrl = new URL('/login', request.url);
+      loginUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
@@ -26,5 +33,7 @@ export function proxy(request) {
 }
 
 export const config = {
-  matcher: ['/services/:path*', '/education/:path*', '/medical/:path*', '/domestic/:path*', '/career/:path*', '/legal-aid/:path*', '/mental-health/:path*', '/help-request/:path*', '/my-requests/:path*', '/profile/:path*', '/admin/dashboard/:path*'],
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|logo.png|manifest.json|sw.js|hero-illustration.png|about-illustration.png).*)',
+  ],
 };
