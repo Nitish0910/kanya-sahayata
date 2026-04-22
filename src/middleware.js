@@ -3,21 +3,14 @@ import { NextResponse } from 'next/server';
 const protectedUserRoutes = ['/services', '/education', '/medical', '/domestic', '/career', '/legal-aid', '/mental-health', '/help-request', '/my-requests', '/profile'];
 const protectedAdminRoutes = ['/admin/dashboard'];
 
-export function proxy(request) {
+export function middleware(request) {
   const { pathname } = request.nextUrl;
-
-  // Skip API routes and static files
-  if (pathname.startsWith('/api') || pathname.startsWith('/_next') || pathname.includes('.')) {
-    return NextResponse.next();
-  }
 
   // Check user-protected routes
   if (protectedUserRoutes.some(route => pathname.startsWith(route))) {
     const session = request.cookies.get('kanya_session');
     if (!session) {
-      const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
 
@@ -33,7 +26,5 @@ export function proxy(request) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|logo.png|manifest.json|sw.js|hero-illustration.png|about-illustration.png).*)',
-  ],
+  matcher: ['/services/:path*', '/education/:path*', '/medical/:path*', '/domestic/:path*', '/career/:path*', '/legal-aid/:path*', '/mental-health/:path*', '/help-request/:path*', '/my-requests/:path*', '/profile/:path*', '/admin/dashboard/:path*'],
 };
