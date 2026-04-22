@@ -31,6 +31,8 @@ export default function DonatePage() {
   };
 
   if (thankYou) {
+    const receiptNo = `KS-${Date.now().toString(36).toUpperCase()}`;
+    const receiptDate = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
     return (
       <>
         <div className="page-banner">
@@ -39,12 +41,31 @@ export default function DonatePage() {
         </div>
         <section className="section-padding">
           <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
-            <div className="glass-card">
+            <div className="glass-card receipt-card" id="receipt">
               <span style={{ fontSize: '64px', display: 'block', marginBottom: '20px' }}>🎉</span>
-              <h2 style={{ color: 'white', marginBottom: '16px' }}>Thank you, {thankYou.name}!</h2>
-              <p style={{ color: '#94a3b8', marginBottom: '12px' }}>You are donating <strong style={{ color: '#34d399' }}>{thankYou.donation_quantity}</strong> {thankYou.donation_type}:</p>
-              <p style={{ color: '#cbd5e1', fontStyle: 'italic', marginBottom: '24px' }}>{thankYou.donation_description}</p>
-              <p style={{ color: '#94a3b8' }}>We will contact you soon to arrange pickup or delivery.</p>
+              <h2 style={{ color: 'white', marginBottom: '8px' }}>Thank you, {thankYou.name}!</h2>
+              <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '24px' }}>Receipt No: <strong style={{ color: '#34d399' }}>{receiptNo}</strong> | Date: {receiptDate}</p>
+              
+              <div style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '12px', padding: '20px', textAlign: 'left', marginBottom: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px' }}>
+                  <div><span style={{ color: '#64748b' }}>Donor:</span><br/><strong style={{ color: '#cbd5e1' }}>{thankYou.name}</strong></div>
+                  <div><span style={{ color: '#64748b' }}>Email:</span><br/><strong style={{ color: '#cbd5e1' }}>{thankYou.email}</strong></div>
+                  <div><span style={{ color: '#64748b' }}>Type:</span><br/><strong style={{ color: '#34d399', textTransform: 'capitalize' }}>{thankYou.donation_type}</strong></div>
+                  <div><span style={{ color: '#64748b' }}>Quantity:</span><br/><strong style={{ color: '#34d399' }}>{thankYou.donation_quantity}</strong></div>
+                </div>
+                <div style={{ marginTop: '12px' }}><span style={{ color: '#64748b', fontSize: '14px' }}>Description:</span><br/><em style={{ color: '#cbd5e1', fontSize: '14px' }}>{thankYou.donation_description}</em></div>
+              </div>
+
+              <p style={{ color: '#94a3b8', marginBottom: '20px' }}>We will contact you soon to arrange pickup or delivery.</p>
+              
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button onClick={() => window.print()} className="btn btn-primary" style={{ padding: '10px 24px', fontSize: '14px' }}>
+                  🖨️ Print Receipt
+                </button>
+                <button onClick={() => { setThankYou(null); setStatus(null); }} className="btn btn-outline" style={{ padding: '10px 24px', fontSize: '14px' }}>
+                  Donate Again
+                </button>
+              </div>
             </div>
           </div>
         </section>

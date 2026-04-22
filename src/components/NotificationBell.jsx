@@ -11,14 +11,37 @@ export default function NotificationBell() {
     try {
       const res = await fetch('/api/notifications');
       const data = await res.json();
-      if (data.success) setNotifications(data.data);
+      if (data.success) {
+        const prevUnread = notifications.filter(n => !n.read).length;
+        const newUnread = data.data.filter(n => !n.read).length;
+        // Play notification sound if new unread appeared
+        if (newUnread > prevUnread && prevUnread > 0) {
+          try {
+            const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQ==');
+            audio.volume = 0.3;
+            audio.play().catch(() => {});
+          } catch {}
+        }
+        setNotifications(data.data);
+      }
     } catch {}
-  }, []);
+  }, [notifications]);
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
-    return () => clearInterval(interval);
+    // #13 Improved polling - 15s when visible, paused when hidden
+    let interval;
+    const startPolling = () => { interval = setInterval(fetchNotifications, 15000); };
+    const stopPolling = () => { if (interval) clearInterval(interval); };
+    
+    const handleVisibility = () => {
+      if (document.hidden) stopPolling();
+      else { fetchNotifications(); startPolling(); }
+    };
+    
+    startPolling();
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => { stopPolling(); document.removeEventListener('visibilitychange', handleVisibility); };
   }, [fetchNotifications]);
 
   const unreadCount = notifications.filter(n => !n.read).length;

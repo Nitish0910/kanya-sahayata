@@ -5,9 +5,10 @@ import { FiBookOpen, FiHeart, FiHome, FiBriefcase, FiShield, FiSmile } from 'rea
 
 export default function ServicesPage() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/auth/session').then(r => r.json()).then(d => { if (d.loggedIn) setUser(d.user); });
+    fetch('/api/auth/session').then(r => r.json()).then(d => { if (d.loggedIn) setUser(d.user); }).finally(() => setLoading(false));
   }, []);
 
   const services = [
@@ -33,7 +34,7 @@ export default function ServicesPage() {
           <div style={{ display: 'grid', gap: '40px' }}>
             {services.map((service, i) => (
               <div key={i} className="glass-card" style={{ padding: '40px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center', direction: i % 2 !== 0 ? 'rtl' : 'ltr' }}>
+                <div className="service-alt-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center', direction: i % 2 !== 0 ? 'rtl' : 'ltr' }}>
                   <div style={{ direction: 'ltr' }}>
                     <div style={{ width: '72px', height: '72px', borderRadius: '18px', background: `${service.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: service.color, marginBottom: '20px' }}>
                       {service.icon}

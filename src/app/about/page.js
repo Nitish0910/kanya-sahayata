@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function AboutPage() {
   const [openAccordion, setOpenAccordion] = useState(0);
@@ -27,12 +28,18 @@ export default function AboutPage() {
 
       <section className="section-padding">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '50px', alignItems: 'start' }}>
-            <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(249,115,22,0.05))', borderRadius: '20px', padding: '40px', minHeight: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ textAlign: 'center' }}>
-                <span style={{ fontSize: '80px' }}>🌸</span>
-                <h3 style={{ color: 'white', marginTop: '16px', fontSize: '24px' }}>Kanya Sahayata</h3>
-                <p style={{ color: '#94a3b8', marginTop: '8px' }}>Empowering Girls Since 2025</p>
+          <div className="about-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '50px', alignItems: 'start' }}>
+            <div style={{ borderRadius: '20px', overflow: 'hidden' }}>
+              <Image
+                src="/about-illustration.png"
+                alt="Empowered girls learning together"
+                width={600}
+                height={400}
+                style={{ width: '100%', height: 'auto', borderRadius: '20px', objectFit: 'cover' }}
+              />
+              <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(249,115,22,0.05))', borderRadius: '16px', padding: '24px', marginTop: '16px', textAlign: 'center' }}>
+                <h3 style={{ color: 'white', fontSize: '20px', marginBottom: '4px' }}>🌸 Kanya Sahayata</h3>
+                <p style={{ color: '#94a3b8', fontSize: '14px' }}>Empowering Girls Since 2025</p>
               </div>
             </div>
             <div>
@@ -64,7 +71,7 @@ export default function AboutPage() {
 
       <section className="section-padding">
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '50px', alignItems: 'start' }}>
+          <div className="about-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '50px', alignItems: 'start' }}>
             <div>
               <h3 style={{ color: 'white', fontSize: '28px', fontWeight: 700, marginBottom: '16px' }}>How to Become Part of This?</h3>
               <p style={{ color: '#94a3b8', lineHeight: 1.8, marginBottom: '24px' }}>To take benefit of these services, follow these simple steps:</p>

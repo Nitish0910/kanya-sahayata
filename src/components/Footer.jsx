@@ -1,7 +1,11 @@
+'use client';
 import Link from 'next/link';
+import { useI18n } from '@/lib/i18n';
 import styles from './Footer.module.css';
 
 export default function Footer() {
+  const { t } = useI18n();
+
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
@@ -19,25 +23,25 @@ export default function Footer() {
             </div>
           </div>
           <div className={styles.links}>
-            <h4>Quick Links</h4>
-            <Link href="/">Home</Link>
-            <Link href="/about">About Us</Link>
-            <Link href="/services">Services</Link>
-            <Link href="/ngos">NGO Partners</Link>
-            <Link href="/contact">Contact</Link>
-            <Link href="/donate">Donate</Link>
+            <h4>{t('quickLinks')}</h4>
+            <Link href="/">{t('home')}</Link>
+            <Link href="/about">{t('about')}</Link>
+            <Link href="/services">{t('services')}</Link>
+            <Link href="/ngos">{t('ngoPartners')}</Link>
+            <Link href="/contact">{t('contact')}</Link>
+            <Link href="/donate">{t('donate')}</Link>
           </div>
           <div className={styles.links}>
-            <h4>Our Services</h4>
-            <Link href="/education">📚 Education</Link>
-            <Link href="/medical">🏥 Medical</Link>
-            <Link href="/domestic">🏠 Domestic</Link>
-            <Link href="/career">💼 Career Guidance</Link>
-            <Link href="/legal-aid">⚖️ Legal Aid</Link>
-            <Link href="/mental-health">💙 Mental Health</Link>
+            <h4>{t('ourServices')}</h4>
+            <Link href="/education">📚 {t('education')}</Link>
+            <Link href="/medical">🏥 {t('medical')}</Link>
+            <Link href="/domestic">🏠 {t('domestic')}</Link>
+            <Link href="/career">💼 {t('careerGuidance')}</Link>
+            <Link href="/legal-aid">⚖️ {t('legalAid')}</Link>
+            <Link href="/mental-health">💙 {t('mentalHealth')}</Link>
           </div>
           <div className={styles.links}>
-            <h4>Contact Info</h4>
+            <h4>{t('contactInfo')}</h4>
             <p>📧 kanyasahayata@gmail.com</p>
             <p>📞 9100200340</p>
             <p>📍 Moradabad, India</p>

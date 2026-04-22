@@ -191,6 +191,55 @@ export default function AdminDashboard() {
             ))}
           </div>
 
+          {/* ====== #8 CHARTS ====== */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }} className="about-2col">
+            {/* Request Status Chart */}
+            <div className="chart-container">
+              <h4 style={{ color: 'white', fontSize: '16px', fontWeight: 700, marginBottom: '20px' }}>📊 Request Status Distribution</h4>
+              {[
+                { label: 'Pending', count: analytics.pendingRequests, color: '#facc15', bg: 'rgba(234,179,8,0.2)' },
+                { label: 'Verified', count: analytics.verifiedRequests, color: '#60a5fa', bg: 'rgba(59,130,246,0.2)' },
+                { label: 'Assigned', count: analytics.assignedRequests, color: '#34d399', bg: 'rgba(16,185,129,0.2)' },
+                { label: 'Completed', count: analytics.completedRequests, color: '#a78bfa', bg: 'rgba(139,92,246,0.2)' },
+                { label: 'Rejected', count: analytics.rejectedRequests, color: '#f87171', bg: 'rgba(239,68,68,0.2)' },
+              ].map((bar) => (
+                <div key={bar.label} style={{ marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>{bar.label}</span>
+                    <span style={{ color: bar.color, fontSize: '13px', fontWeight: 700 }}>{bar.count}</span>
+                  </div>
+                  <div style={{ height: '24px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', width: analytics.totalHelpRequests > 0 ? `${(bar.count / analytics.totalHelpRequests) * 100}%` : '0%', background: `linear-gradient(90deg, ${bar.bg}, ${bar.color})`, borderRadius: '6px', transition: 'width 1s ease-out', minWidth: bar.count > 0 ? '30px' : '0' }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Service Type Pie-like Chart */}
+            <div className="chart-container">
+              <h4 style={{ color: 'white', fontSize: '16px', fontWeight: 700, marginBottom: '20px' }}>🎯 Requests by Service</h4>
+              {(() => {
+                const serviceTypes = {};
+                helpRequests.forEach(r => { serviceTypes[r.service_type] = (serviceTypes[r.service_type] || 0) + 1; });
+                const colors = { education: '#10b981', medical: '#f97316', domestic: '#8b5cf6', career: '#a78bfa', 'legal-aid': '#f87171', 'mental-health': '#60a5fa' };
+                const entries = Object.entries(serviceTypes).sort((a, b) => b[1] - a[1]);
+                if (entries.length === 0) return <p style={{ color: '#64748b', textAlign: 'center', padding: '40px 0' }}>No data yet</p>;
+                const max = Math.max(...entries.map(e => e[1]));
+                return entries.map(([type, count]) => (
+                  <div key={type} style={{ marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                      <span style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 500, textTransform: 'capitalize' }}>{type}</span>
+                      <span style={{ color: colors[type] || '#34d399', fontSize: '13px', fontWeight: 700 }}>{count}</span>
+                    </div>
+                    <div style={{ height: '24px', background: 'rgba(255,255,255,0.04)', borderRadius: '6px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${(count / max) * 100}%`, background: colors[type] || '#34d399', borderRadius: '6px', transition: 'width 1s ease-out', minWidth: '30px' }}></div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          </div>
+
           {/* Tabs */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '16px' }}>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -440,7 +489,23 @@ export default function AdminDashboard() {
               <h3 style={{ color: 'white', fontSize: '20px', fontWeight: 700 }}>Reply to Message</h3>
               <button onClick={() => setReplyModal(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '24px', cursor: 'pointer' }}>✕</button>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Reply sent to ' + replyForm.email); setReplyModal(null); }}>
+            <form onSubmit={async (e) => { 
+              e.preventDefault(); 
+              try {
+                const res = await fetch('/api/admin/reply', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email: replyForm.email, message: replyForm.message, subject: 'Reply from Kanya Sahayata Admin' })
+                });
+                const data = await res.json();
+                if (data.success) {
+                  alert('✅ ' + data.message);
+                } else {
+                  alert('❌ ' + data.message);
+                }
+              } catch { alert('Error sending reply'); }
+              setReplyModal(null); 
+            }}>
               <div className="form-group">
                 <label>Email</label>
                 <input className="form-input" type="email" value={replyForm.email} onChange={e => setReplyForm({...replyForm, email: e.target.value})} />

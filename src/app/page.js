@@ -1,6 +1,11 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import { FiArrowRight, FiBookOpen, FiHeart, FiShield, FiHeadphones, FiBriefcase, FiSmile } from 'react-icons/fi';
 import styles from './page.module.css';
 
@@ -69,6 +74,8 @@ const testimonials = [
   { text: "It's a very good website which helps us by providing several services. They sent the help immediately whenever required. I am very grateful for the benefits they provide.", name: 'Priya', role: 'A rural area girl' },
   { text: "The education materials and support provided have been life-changing. I can now access study materials that were never available in my village before.", name: 'Anita', role: 'Student' },
   { text: "The medical facilities and hygiene products we received have made a significant difference in our community. Thank you Kanya Sahayata!", name: 'Sunita', role: 'Community member' },
+  { text: "Career guidance se mujhe pata chala ki meri skills kitni valuable hain. Ab main apna khud ka tailoring business chalati hun.", name: 'Kavita', role: 'Entrepreneur' },
+  { text: "Legal aid service ne meri bahut madad ki. Mujhe apne rights ke baare me pata chala aur ab main dusri ladkiyon ko bhi guide karti hun.", name: 'Neha', role: 'Community leader' },
 ];
 
 // Animated counter hook
@@ -110,35 +117,47 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero Section */}
+      {/* Hero Section — #2 Hero Image added */}
       <section className={styles.hero}>
         <div className={styles.heroBg}></div>
         <div className={styles.heroContent}>
           <div className="container">
-            <div className={styles.heroText}>
-              <span className={styles.heroBadge}>🌸 Empowering Girls Since 2025</span>
-              <h1>
-                Get <em>Ready</em> to Encourage<br />
-                and Support <span className={styles.highlight}>Girls</span>
-              </h1>
-              <p>Kanya Sahayata helps rural girls by providing education, medical, career guidance, legal aid, and mental health support through 22+ NGO partners.</p>
-              <div className={styles.heroButtons}>
-                <Link href="/donate" className="btn btn-primary">
-                  Donate Now <FiArrowRight />
-                </Link>
-                <Link href="/contact" className="btn btn-outline">
-                  Contact Us
-                </Link>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', alignItems: 'center' }} className="hero-grid">
+              <div className={styles.heroText}>
+                <span className={styles.heroBadge}>🌸 Empowering Girls Since 2025</span>
+                <h1>
+                  Get <em>Ready</em> to Encourage<br />
+                  and Support <span className={styles.highlight}>Girls</span>
+                </h1>
+                <p>Kanya Sahayata helps rural girls by providing education, medical, career guidance, legal aid, and mental health support through 22+ NGO partners.</p>
+                <div className={styles.heroButtons}>
+                  <Link href="/donate" className="btn btn-primary">
+                    Donate Now <FiArrowRight />
+                  </Link>
+                  <Link href="/contact" className="btn btn-outline">
+                    Contact Us
+                  </Link>
+                </div>
+              </div>
+              <div className="hero-image" style={{ display: 'flex', justifyContent: 'center', animation: 'float 6s ease-in-out infinite' }}>
+                <Image
+                  src="/hero-illustration.png"
+                  alt="Empowered girls studying together"
+                  width={500}
+                  height={400}
+                  style={{ borderRadius: '20px', objectFit: 'cover', maxWidth: '100%', height: 'auto' }}
+                  priority
+                />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Counter */}
+      {/* Stats Counter — #1 Responsive grid */}
       <section style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.08), rgba(139,92,246,0.05))', borderBottom: '1px solid rgba(16,185,129,0.1)', padding: '40px 0' }}>
         <div className="container">
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', textAlign: 'center' }}>
+          <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', textAlign: 'center' }}>
             {[
               { label: 'Girls Helped', value: girlsHelped, suffix: '+', ref: girlsRef, color: '#10b981', icon: '👧' },
               { label: 'Partner NGOs', value: ngosCount, suffix: '+', ref: ngosRef, color: '#f97316', icon: '🏢' },
@@ -261,28 +280,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* #15 Testimonial Carousel using Swiper */}
       <section className={`section-padding ${styles.testimonials}`}>
         <div className="container">
           <div className="section-heading">
             <h6>Let&apos;s See</h6>
             <h2>What They Say</h2>
           </div>
-          <div className="grid-3">
+          <Swiper
+            modules={[Autoplay, Pagination]}
+            spaceBetween={30}
+            slidesPerView={1}
+            breakpoints={{
+              640: { slidesPerView: 2 },
+              1024: { slidesPerView: 3 },
+            }}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            pagination={{ clickable: true }}
+            loop={true}
+            style={{ paddingBottom: '50px' }}
+          >
             {testimonials.map((t, i) => (
-              <div key={i} className={`glass-card ${styles.testimonialCard}`}>
-                <div className={styles.quoteIcon}>&ldquo;</div>
-                <p>{t.text}</p>
-                <div className={styles.testimonialAuthor}>
-                  <div className={styles.authorAvatar}>{t.name[0]}</div>
+              <SwiperSlide key={i}>
+                <div className={`glass-card ${styles.testimonialCard}`} style={{ minHeight: '280px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                   <div>
-                    <h5>{t.name}</h5>
-                    <span>{t.role}</span>
+                    <div className={styles.quoteIcon}>&ldquo;</div>
+                    <p>{t.text}</p>
+                  </div>
+                  <div className={styles.testimonialAuthor}>
+                    <div className={styles.authorAvatar}>{t.name[0]}</div>
+                    <div>
+                      <h5>{t.name}</h5>
+                      <span>{t.role}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </SwiperSlide>
             ))}
-          </div>
+          </Swiper>
         </div>
       </section>
 
@@ -300,6 +335,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Swiper pagination custom color */}
+      <style jsx global>{`
+        .swiper-pagination-bullet { background: #94a3b8 !important; opacity: 0.5; }
+        .swiper-pagination-bullet-active { background: #10b981 !important; opacity: 1; }
+      `}</style>
     </>
   );
 }
