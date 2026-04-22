@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import Admin from '@/models/Admin';
-import { createAdminSession } from '@/lib/auth';
+import { createAdminSessionResponse } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request) {
@@ -12,29 +12,27 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Admin ID and password are required' }, { status: 400 });
     }
 
-    // Check if MONGODB_URI exists
     if (!process.env.MONGODB_URI) {
-      console.error('MONGODB_URI environment variable is not set!');
       return NextResponse.json({ success: false, message: 'Database not configured. Please set MONGODB_URI environment variable.' }, { status: 500 });
     }
 
     await dbConnect();
 
-    // Find admin by userid (e.g., ADMIN-001)
     const admin = await Admin.findOne({ userid });
 
     if (!admin) {
       return NextResponse.json({ success: false, message: 'Username or password is incorrect' }, { status: 401 });
     }
 
-    // Compare password with bcrypt hash
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
       return NextResponse.json({ success: false, message: 'Username or password is incorrect' }, { status: 401 });
     }
 
-    await createAdminSession({ userid: admin.userid, username: admin.username });
-    return NextResponse.json({ success: true, message: 'Admin login successful' });
+    return createAdminSessionResponse(
+      { userid: admin.userid, username: admin.username },
+      { message: 'Admin login successful' }
+    );
   } catch (error) {
     console.error('Admin login error:', error.message || error);
     return NextResponse.json({ success: false, message: 'Server error: ' + (error.message || 'Unknown error') }, { status: 500 });

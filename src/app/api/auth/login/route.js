@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
-import { createSession } from '@/lib/auth';
+import { createSessionResponse } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { rateLimit } from '@/lib/rateLimit';
 
@@ -35,8 +35,10 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Email or password is incorrect' }, { status: 401 });
     }
 
-    await createSession({ id: user.id_number, name: user.name, email: user.email });
-    return NextResponse.json({ success: true, message: 'Login successful', user: { name: user.name, email: user.email } });
+    return createSessionResponse(
+      { id: user.id_number, name: user.name, email: user.email },
+      { message: 'Login successful', user: { name: user.name, email: user.email } }
+    );
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
