@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 const protectedUserRoutes = ['/services', '/education', '/medical', '/domestic', '/career', '/legal-aid', '/mental-health', '/help-request', '/my-requests', '/profile'];
 const protectedAdminRoutes = ['/admin/dashboard'];
 
-export function middleware(request) {
+export function proxy(request) {
   const { pathname } = request.nextUrl;
 
   // Check user-protected routes
