@@ -12,6 +12,12 @@ export async function POST(request) {
       return NextResponse.json({ success: false, message: 'Admin ID and password are required' }, { status: 400 });
     }
 
+    // Check if MONGODB_URI exists
+    if (!process.env.MONGODB_URI) {
+      console.error('MONGODB_URI environment variable is not set!');
+      return NextResponse.json({ success: false, message: 'Database not configured. Please set MONGODB_URI environment variable.' }, { status: 500 });
+    }
+
     await dbConnect();
 
     // Find admin by userid (e.g., ADMIN-001)
@@ -30,7 +36,7 @@ export async function POST(request) {
     await createAdminSession({ userid: admin.userid, username: admin.username });
     return NextResponse.json({ success: true, message: 'Admin login successful' });
   } catch (error) {
-    console.error('Admin login error:', error);
-    return NextResponse.json({ success: false, message: 'Server error' }, { status: 500 });
+    console.error('Admin login error:', error.message || error);
+    return NextResponse.json({ success: false, message: 'Server error: ' + (error.message || 'Unknown error') }, { status: 500 });
   }
 }
